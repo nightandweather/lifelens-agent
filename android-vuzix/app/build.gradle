@@ -1,0 +1,35 @@
+plugins {
+    id "com.android.application"
+}
+
+android {
+    namespace "com.kanghoun.lifelens.vuzix"
+    compileSdk 35
+
+    defaultConfig {
+        applicationId "com.kanghoun.lifelens.vuzix"
+        minSdk 30
+        targetSdk 35
+        versionCode 1
+        versionName "0.1.0"
+    }
+
+    signingConfigs {
+        release {
+            if (System.getenv("VUZIX_KEYSTORE_PATH")) {
+                storeFile file(System.getenv("VUZIX_KEYSTORE_PATH"))
+                storePassword System.getenv("VUZIX_KEYSTORE_PASSWORD")
+                keyAlias System.getenv("VUZIX_KEY_ALIAS")
+                keyPassword System.getenv("VUZIX_KEY_PASSWORD")
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.release
+            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
+        }
+    }
+}
