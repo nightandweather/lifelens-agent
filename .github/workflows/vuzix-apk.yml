@@ -36,6 +36,8 @@ jobs:
           VUZIX_KEY_ALIAS: ${{ secrets.VUZIX_KEY_ALIAS }}
           VUZIX_KEY_PASSWORD: ${{ secrets.VUZIX_KEY_PASSWORD }}
         run: gradle --no-daemon assembleRelease
+      - name: Verify APK signature
+        run: "$ANDROID_HOME/build-tools/35.0.0/apksigner verify --verbose --print-certs app/build/outputs/apk/release/app-release.apk"
       - uses: actions/upload-artifact@v4
         with:
           name: lifelens-vuzix-release
