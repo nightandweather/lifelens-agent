@@ -17,6 +17,8 @@ type Scene = {
   metric: string;
   metricLabel: string;
   confidence: string;
+  eventId: string;
+  actionType: string;
 };
 
 const scenes: Scene[] = [
@@ -34,6 +36,8 @@ const scenes: Scene[] = [
     metric: "690",
     metricLabel: "estimated kcal",
     confidence: "82% visual confidence",
+    eventId: "moment-meal-001",
+    actionType: "save_meal_estimate",
   },
   {
     key: "conversation",
@@ -49,6 +53,8 @@ const scenes: Scene[] = [
     metric: "Fri",
     metricLabel: "follow-up due",
     confidence: "No personality inference",
+    eventId: "moment-talk-001",
+    actionType: "create_follow_up",
   },
   {
     key: "evening",
@@ -64,6 +70,8 @@ const scenes: Scene[] = [
     metric: "20",
     metricLabel: "minutes suggested",
     confidence: "Based on your routine",
+    eventId: "moment-evening-001",
+    actionType: "start_activity",
   },
 ];
 
@@ -124,14 +132,30 @@ export default function Home() {
     [activeKey],
   );
 
-  const acceptAction = () => {
+  const acceptAction = async () => {
+    setNotice("Confirming this exact action…");
+    const response = await fetch("/api/action", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        eventId: active.eventId,
+        actionType: active.actionType,
+        confirmed: true,
+      }),
+    });
+
+    if (!response.ok) {
+      setNotice("The action was blocked; nothing changed");
+      return;
+    }
+
     setAccepted((items) => (items.includes(activeKey) ? items : [...items, activeKey]));
     setNotice(
       activeKey === "meal"
-        ? "Meal saved after your confirmation"
+        ? "Meal approved for this private session"
         : activeKey === "conversation"
-          ? "Follow-up added — nothing was sent"
-          : "20-minute walk started",
+          ? "Follow-up approved — nothing was sent"
+          : "20-minute walk approved",
     );
   };
 

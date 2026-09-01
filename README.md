@@ -1,100 +1,100 @@
-# vinext-starter
+# LifeLens
 
-A clean full-stack starter running on
-[vinext](https://github.com/cloudflare/vinext), with optional Cloudflare D1 and
-Drizzle support.
+LifeLens is a privacy-first wearable agent that turns everyday moments into
+small, useful next actions across health, work, and relationships. It is built
+for the **Agents for Humans Hackathon** with the AWS Strands Agents SDK.
 
-## Prerequisites
+## What the demo shows
 
-- Node.js `>=22.13.0`
+- A meal moment becomes a calorie **range** that the user must confirm.
+- A conversation becomes an explicit commitment and a neutral reflection,
+  without guessing anyone's feelings or personality.
+- An evening context becomes a gentle activity proposal based on the user's
+  own stated routine.
+- No memory or external action is committed without explicit confirmation.
 
-## Quick Start
+## Architecture
+
+```mermaid
+flowchart LR
+    A[Ray-Ban Meta camera and audio] --> B[Meta Device Access Toolkit]
+    M[Mock Device Kit fixtures] --> C[Wearable input adapter]
+    B --> C
+    C -->|derived observations only| D[LifeLens Strands Agent]
+    D --> E[Amazon Bedrock]
+    D --> F[Safety validator]
+    F --> G[Proposed next action]
+    G --> H{User confirms?}
+    H -->|No| I[Discard]
+    H -->|Yes| J[Minimal structured memory]
+```
+
+The current hosted demo uses the same consent-gated contract with simulated
+moments. The Python service switches between a deterministic demo evaluator and
+the real Bedrock-backed Strands agent with one environment flag.
+
+## Run the interactive web demo
+
+Requires Node.js 22.13 or newer.
 
 ```bash
 npm install
 npm run dev
-npm run build
 ```
 
-This starter does not use `wrangler.jsonc`.
+## Run the Strands agent API
 
-## Included Shape
-
-- edit site code under `app/`
-- `.openai/hosting.json` declares optional Sites D1 and R2 bindings
-- `vite.config.ts` simulates declared bindings for local development
-- `db/schema.ts` starts intentionally empty
-- `examples/d1/` contains an optional D1 example surface
-- `drizzle.config.ts` supports local migration generation when needed
-
-## Workspace Auth Headers
-
-Signed-in visitors receive both `oai-authenticated-user-id` and `oai-authenticated-user-email`. Private Sites require every visitor to sign in; public Sites may also have anonymous visitors, for whom neither header is present.
-
-The user ID is stable for the same user on the same Site and different across Sites. Email and name are intended for display or contact purposes.
-
-SIWC-authenticated workspace sites may also receive
-`oai-authenticated-user-full-name` when the user's SIWC profile has a non-empty
-`name` claim. The full-name value is percent-encoded UTF-8 and is accompanied by
-`oai-authenticated-user-full-name-encoding: percent-encoded-utf-8`.
-
-Treat the full name as optional and fall back to email when it is absent:
-
-```tsx
-import { headers } from "next/headers";
-
-export default async function Home() {
-  const requestHeaders = await headers();
-  const userId = requestHeaders.get("oai-authenticated-user-id");
-  const email = requestHeaders.get("oai-authenticated-user-email");
-  const encodedFullName = requestHeaders.get("oai-authenticated-user-full-name");
-  const fullName =
-    encodedFullName &&
-    requestHeaders.get("oai-authenticated-user-full-name-encoding") ===
-      "percent-encoded-utf-8"
-      ? decodeURIComponent(encodedFullName)
-      : null;
-
-  const displayName = fullName ?? email;
-  // ...
-}
+```bash
+cd backend
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+uvicorn lifelens.api:app --reload
 ```
 
-## Optional Dispatch-Owned ChatGPT Sign-In
+Demo mode is the default and requires no AWS account. To use Amazon Bedrock,
+configure standard AWS credentials, ensure model access in your region, and run:
 
-Import the ready-to-use helpers from `app/chatgpt-auth.ts` when the site needs
-optional or required ChatGPT sign-in:
+```bash
+export LIFELENS_DEMO_MODE=0
+uvicorn lifelens.api:app --reload
+```
 
-- Use `getChatGPTUser()` for optional signed-in UI.
-- Use `requireChatGPTUser(returnTo)` for server-rendered pages that should send
-  anonymous visitors through Sign in with ChatGPT.
-- Use `chatGPTSignInPath(returnTo)` and `chatGPTSignOutPath(returnTo)` for
-  browser links or actions.
-- Pass a same-origin relative `returnTo` path for the destination after sign-in
-  or sign-out. The helper validates and safely encodes it.
-- Mark protected pages with `export const dynamic = "force-dynamic"` because
-  they depend on per-request identity headers.
+API surfaces:
 
-Dispatch owns `/signin-with-chatgpt`, `/signout-with-chatgpt`, `/callback`, the
-OAuth cookies, and identity header injection. Do not implement app routes for
-those reserved paths. Routes that do not import and call the helper remain
-anonymous-compatible.
+- `POST /v1/moments/analyze` — turn a structured wearable moment into a proposal.
+- `POST /v1/actions/confirm` — commit the exact proposal only after confirmation.
+- `GET /health` — report whether the service is in demo or Bedrock mode.
 
-SIWC establishes identity only; it does not prove workspace membership. Use the
-Sites hosting platform's access policy controls for workspace-wide restrictions,
-or enforce explicit server-side membership or allowlist checks.
+## Ray-Ban integration boundary
 
-Use SIWC for account pages, user-specific dashboards, saved records, and write
-actions tied to the current ChatGPT user. Leave public content anonymous.
+`RayBanMockAdapter` reads JSONL events that match the downstream contract of a
+native Meta Device Access Toolkit bridge. The native iOS/Android app should:
 
-## Useful Commands
+1. start capture only after a visible user action;
+2. sample the camera/audio stream for the active moment;
+3. convert media into the minimal `MomentEvent` observations;
+4. discard raw samples; and
+5. send only that event to LifeLens.
 
-- `npm run dev`: start local development
-- `npm run build`: verify the vinext build output
-- `npm test`: build the starter and verify its rendered loading skeleton
-- `npm run db:generate`: generate Drizzle migrations after schema changes
+The included fixtures simulate lunch, a work conversation, and an evening at
+home without requiring physical glasses.
 
-## Learn More
+## Safety guarantees in the MVP
 
-- [vinext Documentation](https://github.com/cloudflare/vinext)
-- [Drizzle D1 Guide](https://orm.drizzle.team/docs/get-started/d1-new)
+- observable behavior only; no emotion, personality, honesty, or diagnosis claims;
+- calorie and activity outputs remain estimates;
+- raw media is rejected by the backend contract;
+- all proposed actions require confirmation;
+- tests verify that unconfirmed actions cannot mutate memory.
+
+## Tests
+
+```bash
+cd backend
+pytest
+```
+
+## License
+
+MIT
