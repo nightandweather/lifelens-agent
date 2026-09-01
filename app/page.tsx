@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 
-type SceneKey = "meal" | "conversation" | "evening";
+type SceneKey = "meal" | "conversation" | "evening" | "move";
 
 type Scene = {
   key: SceneKey;
@@ -17,6 +17,7 @@ type Scene = {
   metric: string;
   metricLabel: string;
   confidence: string;
+  sources: string[];
   eventId: string;
   actionType: string;
 };
@@ -30,12 +31,13 @@ const scenes: Scene[] = [
     title: "A balanced lunch,\nwith room to adjust.",
     summary: "Bibimbap and miso soup detected. Estimated 620–760 kcal.",
     detail:
-      "The portion looks vegetable-forward. The estimate stays a range until you confirm what was in the bowl.",
+      "Demo profile: the latest authorized InBody record is 74.2 kg with 21.8% body fat. At your saved easy-run pace, this meal would add about 14–18 optional minutes beyond today’s planned run—an energy estimate, not a prescription.",
     action: "Log this meal",
     secondary: "Adjust estimate",
-    metric: "690",
-    metricLabel: "estimated kcal",
+    metric: "14–18",
+    metricLabel: "optional extra run min",
     confidence: "82% visual confidence",
+    sources: ["VISION", "LAST INBODY", "RUN PROFILE"],
     eventId: "moment-meal-001",
     actionType: "save_meal_estimate",
   },
@@ -53,6 +55,7 @@ const scenes: Scene[] = [
     metric: "Fri",
     metricLabel: "follow-up due",
     confidence: "No personality inference",
+    sources: ["VOICE", "CALENDAR"],
     eventId: "moment-talk-001",
     actionType: "create_follow_up",
   },
@@ -70,8 +73,27 @@ const scenes: Scene[] = [
     metric: "20",
     metricLabel: "minutes suggested",
     confidence: "Based on your routine",
+    sources: ["ACTIVITY", "ROUTINE"],
     eventId: "moment-evening-001",
     actionType: "start_activity",
+  },
+  {
+    key: "move",
+    time: "21:08",
+    label: "On the move",
+    eyebrow: "LIVE CONTEXT PLAN",
+    title: "Adjust the route,\nkeep the goal.",
+    summary: "Rain is approaching your usual loop and your pace has slowed for six minutes.",
+    detail:
+      "With camera, map, motion, and weather access enabled for this workout, LifeLens found a well-lit 12-minute route home. It will not reroute or share your location until you approve.",
+    action: "Use safer route",
+    secondary: "Keep current route",
+    metric: "12",
+    metricLabel: "minutes to home",
+    confidence: "4 permissions active",
+    sources: ["CAMERA", "MAP", "MOTION", "WEATHER"],
+    eventId: "moment-move-001",
+    actionType: "apply_route_suggestion",
   },
 ];
 
@@ -85,15 +107,7 @@ const timeline = [
 function SceneVisual({ scene }: { scene: SceneKey }) {
   if (scene === "meal") {
     return (
-      <div className="visual-scene meal-scene" aria-label="Simulated glasses view of lunch">
-        <div className="table-line" />
-        <div className="bowl">
-          <span className="food food-a" />
-          <span className="food food-b" />
-          <span className="food food-c" />
-          <span className="food food-d" />
-        </div>
-        <div className="soup" />
+      <div className="visual-scene photo-scene meal-photo" aria-label="Photorealistic smart-glasses view of lunch">
         <div className="focus-box"><span>meal detected</span></div>
       </div>
     );
@@ -101,14 +115,18 @@ function SceneVisual({ scene }: { scene: SceneKey }) {
 
   if (scene === "conversation") {
     return (
-      <div className="visual-scene conversation-scene" aria-label="Simulated conversation reflection">
-        <div className="window-glow" />
-        <div className="person"><span /></div>
+      <div className="visual-scene photo-scene conversation-photo" aria-label="Photorealistic smart-glasses view of a work conversation">
         <div className="speech-line line-one" />
         <div className="speech-line line-two" />
         <div className="speech-line line-three" />
         <div className="promise-chip">“I’ll send it Friday.”</div>
       </div>
+    );
+  }
+
+  if (scene === "move") {
+    return (
+      <div className="visual-scene photo-scene move-photo" aria-label="Animated smart-glasses running alert with pace, weather, and a safer route" />
     );
   }
 
@@ -155,7 +173,9 @@ export default function Home() {
         ? "Meal approved for this private session"
         : activeKey === "conversation"
           ? "Follow-up approved — nothing was sent"
-          : "20-minute walk approved",
+          : activeKey === "evening"
+            ? "20-minute walk approved"
+            : "Route approved — location was not shared",
     );
   };
 
@@ -194,7 +214,7 @@ export default function Home() {
           </p>
           <div className="hero-actions">
             <a href="#day" className="primary-link">Experience a day <span>↘</span></a>
-            <span className="microcopy">Vision • voice • memory • consent</span>
+            <span className="microcopy">Vision • maps • activity • calendar • consent</span>
           </div>
         </div>
 
@@ -267,6 +287,9 @@ export default function Home() {
             </div>
             <h3>{active.title.split("\n").map((line) => <span key={line}>{line}</span>)}</h3>
             <p className="agent-summary">{active.summary}</p>
+            <div className="context-sources" aria-label="Permitted context sources">
+              {active.sources.map((source) => <span key={source}>{source}</span>)}
+            </div>
             <div className="agent-reason">
               <span>WHY THIS?</span>
               <p>{active.detail}</p>

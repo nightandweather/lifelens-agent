@@ -35,7 +35,8 @@ class LifeLensTools:
 
         Args:
             event_id: Source moment identifier.
-            action_type: One of save_meal_estimate, create_follow_up, or start_activity.
+            action_type: One of save_meal_estimate, create_follow_up, start_activity,
+                or apply_route_suggestion.
             label: Human-readable action label shown to the user.
             payload: Minimal structured fields needed for the action.
             confirmed: True only when the user explicitly approved this exact action.
@@ -46,7 +47,12 @@ class LifeLensTools:
                 "message": "Explicit confirmation is required. Nothing was stored or executed.",
             }
 
-        allowed = {"save_meal_estimate", "create_follow_up", "start_activity"}
+        allowed = {
+            "save_meal_estimate",
+            "create_follow_up",
+            "start_activity",
+            "apply_route_suggestion",
+        }
         if action_type not in allowed:
             return {"status": "blocked", "message": "Unsupported action type."}
 

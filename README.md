@@ -6,11 +6,17 @@ for the **Agents for Humans Hackathon** with the AWS Strands Agents SDK.
 
 ## What the demo shows
 
-- A meal moment becomes a calorie **range** that the user must confirm.
+![LifeLens running HUD prototype](public/lifelens-glasses-run.gif)
+
+- A meal moment becomes a calorie **range** and, when the user separately
+  authorizes a prior InBody record and running profile, an optional extra-time
+  comparison that the user must confirm. It is never framed as punishment.
 - A conversation becomes an explicit commitment and a neutral reflection,
   without guessing anyone's feelings or personality.
 - An evening context becomes a gentle activity proposal based on the user's
   own stated routine.
+- During an approved workout session, camera, map, motion, and weather signals
+  combine into a contextual route suggestion without silently sharing location.
 - No memory or external action is committed without explicit confirmation.
 
 ## Architecture
@@ -28,6 +34,20 @@ flowchart LR
     H -->|No| I[Discard]
     H -->|Yes| J[Minimal structured memory]
 ```
+
+LifeLens is hardware-agnostic: the same wearable input contract can accept a
+Ray-Ban bridge today and an Android XR or Samsung glasses adapter as those
+device APIs become available.
+
+For a buildable hardware path, Vuzix M400/M4000 can run the Android bridge with
+Camera2, sensor, microphone/MediaRecorder, and Vuzix Speech SDK access. Meta
+Wearables Device Access Toolkit is the Ray-Ban path for camera and audio; visual
+HUD output targets display-capable Meta glasses or Vuzix display devices.
+
+Each signal is scoped independently. Enabling camera access does not grant map,
+health, calendar, screen, messaging, or location-sharing access. The agent may
+combine only the signals enabled for the active session, and any external action
+still requires a separate confirmation.
 
 The current hosted demo uses the same consent-gated contract with simulated
 moments. The Python service switches between a deterministic demo evaluator and

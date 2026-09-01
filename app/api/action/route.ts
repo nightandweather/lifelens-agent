@@ -2,6 +2,7 @@ const allowedActions = new Set([
   "save_meal_estimate",
   "create_follow_up",
   "start_activity",
+  "apply_route_suggestion",
 ]);
 
 export async function POST(request: Request) {

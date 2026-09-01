@@ -5,7 +5,7 @@ from lifelens.mock_device import RayBanMockAdapter
 
 def test_mock_day_has_no_retained_raw_media() -> None:
     moments = list(RayBanMockAdapter("fixtures/day.jsonl").stream())
-    assert len(moments) == 3
+    assert len(moments) == 4
     assert all(not moment.raw_media_retained for moment in moments)
 
 

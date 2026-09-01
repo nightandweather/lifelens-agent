@@ -10,6 +10,7 @@ class MomentType(str, Enum):
     meal = "meal"
     conversation = "conversation"
     evening = "evening"
+    mobility = "mobility"
 
 
 class MomentEvent(BaseModel):

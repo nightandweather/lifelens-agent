@@ -110,6 +110,10 @@ a { color: inherit; text-decoration: none; }
 .pov-header i { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #777; margin-right: 5px; }
 .pov-header i.recording { background: #ff846f; box-shadow: 0 0 0 4px rgba(255,132,111,.12); }
 .visual-scene { flex: 1; position: relative; overflow: hidden; }
+.photo-scene { background-image: linear-gradient(rgba(12,24,17,.08), rgba(12,24,17,.26)), url('/lifelens-scenes.png'); background-size: 300% 100%; background-repeat: no-repeat; }
+.meal-photo { background-position: left center; }
+.conversation-photo { background-position: center center; }
+.move-photo { background-image: url('/lifelens-glasses-run.gif'); background-size: cover; background-position: center; }
 .meal-scene { background: linear-gradient(150deg, #746653 0 44%, #a59470 45% 100%); }
 .table-line { position: absolute; width: 140%; left: -20%; top: 19%; border-top: 2px solid rgba(255,255,255,.1); transform: rotate(-6deg); }
 .bowl { width: 230px; height: 180px; border-radius: 50%; background: #d5cfbd; box-shadow: 0 20px 25px rgba(0,0,0,.26), inset 0 0 0 18px #ebe5d4; position: absolute; left: 14%; top: 24%; transform: rotate(-8deg); }
@@ -142,6 +146,15 @@ a { color: inherit; text-decoration: none; }
 .lamp span { position: absolute; width: 70px; height: 43px; border-radius: 50% 50% 5px 5px; background: #d5be77; left: -34px; top: -20px; box-shadow: 0 0 35px rgba(245,208,106,.25); }
 .walk-path { position: absolute; left: 22%; bottom: 24%; display: flex; gap: 4px; transform: rotate(-14deg); }
 .walk-path i { display: block; width: 38px; border-top: 2px dashed var(--lime); }
+.route-line { position: absolute; left: 20%; right: 14%; bottom: 22%; height: 90px; border: 3px solid var(--lime); border-color: transparent transparent var(--lime) var(--lime); border-radius: 0 0 0 70%; transform: rotate(-8deg); filter: drop-shadow(0 2px 4px rgba(0,0,0,.5)); }
+.route-line i { display: none; }
+.map-pin { position: absolute; right: 13%; top: 21%; width: 28px; height: 28px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); background: var(--lime); color: var(--ink); display: grid; place-items: center; font-size: 9px; box-shadow: 0 5px 20px rgba(0,0,0,.4); }
+.map-pin::first-letter { transform: rotate(45deg); }
+.route-card { position: absolute; left: 7%; top: 8%; padding: 12px 14px; background: rgba(15,24,18,.82); backdrop-filter: blur(8px); display: flex; flex-direction: column; gap: 3px; }
+.route-card strong { font-family: Georgia, serif; font-size: 26px; font-weight: 400; color: var(--lime); }
+.route-card span { font-size: 8px; letter-spacing: .1em; text-transform: uppercase; }
+.sensor-strip { position: absolute; left: 7%; right: 7%; bottom: 6%; display: flex; gap: 5px; flex-wrap: wrap; }
+.sensor-strip span { padding: 6px 8px; background: rgba(15,24,18,.74); border: 1px solid rgba(223,255,120,.35); font-size: 7px; letter-spacing: .12em; }
 
 .agent-card { border-left: 1px solid rgba(243,240,230,.2); padding: 42px 44px; display: flex; flex-direction: column; }
 .agent-topline { display: flex; justify-content: space-between; gap: 20px; align-items: center; }
@@ -150,6 +163,8 @@ a { color: inherit; text-decoration: none; }
 .agent-card h3 { font-family: Georgia, serif; font-size: clamp(40px, 3.8vw, 61px); line-height: .96; font-weight: 400; letter-spacing: -.045em; margin: 42px 0 24px; }
 .agent-card h3 span { display: block; }
 .agent-summary { font-size: 16px; line-height: 1.55; max-width: 520px; color: rgba(243,240,230,.82); }
+.context-sources { display: flex; flex-wrap: wrap; gap: 6px; margin: 5px 0 14px; }
+.context-sources span { border: 1px solid rgba(223,255,120,.35); color: var(--lime); padding: 5px 7px; font-size: 7px; letter-spacing: .13em; }
 .agent-reason { border-top: 1px solid rgba(243,240,230,.18); border-bottom: 1px solid rgba(243,240,230,.18); padding: 17px 0; display: grid; grid-template-columns: 90px 1fr; margin-top: 14px; }
 .agent-reason span { font-size: 8px; letter-spacing: .16em; opacity: .55; padding-top: 4px; }
 .agent-reason p { margin: 0; font-size: 11px; line-height: 1.55; opacity: .62; }

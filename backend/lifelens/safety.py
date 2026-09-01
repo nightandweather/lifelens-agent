@@ -36,14 +36,23 @@ def demo_analysis(event: MomentEvent) -> MomentAnalysis:
             moment_type=event.moment_type,
             headline="A balanced lunch, with room to adjust.",
             observation="A mixed rice bowl and soup are visible.",
-            reasoning="A visual estimate suggests roughly 620–760 kcal, depending on oil and portion size.",
+            reasoning="A visual estimate suggests roughly 620–760 kcal. With the authorized demo profile, that is about 14–18 optional easy-run minutes beyond the planned session.",
             uncertainty="Ingredients and weight cannot be verified from the image alone.",
             proposed_action=ProposedAction(
                 action_type="save_meal_estimate",
                 label="Confirm and log this meal",
-                payload={"kcal_low": 620, "kcal_high": 760},
+                payload={
+                    "kcal_low": 620,
+                    "kcal_high": 760,
+                    "optional_extra_run_minutes_low": 14,
+                    "optional_extra_run_minutes_high": 18,
+                },
             ),
-            safety_notes=["Estimate only", "No diagnosis or nutrition prescription"],
+            safety_notes=[
+                "Estimate only",
+                "No diagnosis or nutrition prescription",
+                "Exercise is framed as optional, never as punishment for eating",
+            ],
         )
 
     if event.moment_type is MomentType.conversation:
@@ -59,6 +68,21 @@ def demo_analysis(event: MomentEvent) -> MomentAnalysis:
                 payload={"summary": "Send revised slides to Mina", "due": "Friday 15:00"},
             ),
             safety_notes=["No emotion inference", "Nothing sent automatically"],
+        )
+
+    if event.moment_type is MomentType.mobility:
+        return MomentAnalysis(
+            moment_type=event.moment_type,
+            headline="Adjust the route, keep the goal.",
+            observation="Rain is approaching and your pace has slowed for six minutes.",
+            reasoning="A shorter, well-lit route home preserves the workout while reducing exposure to worsening weather.",
+            uncertainty="The agent cannot determine fatigue, pain, or route safety with certainty.",
+            proposed_action=ProposedAction(
+                action_type="apply_route_suggestion",
+                label="Use the 12-minute route home",
+                payload={"route": "well_lit_home", "eta_minutes": 12},
+            ),
+            safety_notes=["Location is not shared", "Rerouting requires approval"],
         )
 
     return MomentAnalysis(
