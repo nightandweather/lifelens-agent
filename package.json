@@ -1,6 +1,6 @@
 {
-  "name": "site-creator-vinext-starter",
-  "version": "0.1.0",
+  "name": "lifelens-agent",
+  "version": "0.2.0",
   "private": true,
   "engines": {
     "node": ">=22.13.0"
@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "drizzle-orm": "0.45.2",
-    "next": "16.2.6",
+    "next": "^16.3.4",
     "react": "19.2.6",
     "react-dom": "19.2.6"
   },

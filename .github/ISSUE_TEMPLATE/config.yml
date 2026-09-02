@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Private security or privacy report
+    url: https://github.com/nightandweather/lifelens-agent/security/advisories/new
+    about: Do not disclose vulnerabilities or private data in a public issue.

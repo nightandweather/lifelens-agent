@@ -43,7 +43,7 @@ and Enter to start a voice moment.
 ## Review notes
 
 - Package: `com.kanghoun.lifelens.vuzix`
-- Version name/code: `0.1.0` / `1`
+- Version name/code: `0.2.0` / `2`
 - Target: Vuzix M400/M4000, landscape HUD
 - Uses platform Camera2 and Android SpeechRecognizer APIs.
 - Current build is an interaction and hardware-integration prototype; agent

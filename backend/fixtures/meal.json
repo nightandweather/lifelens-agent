@@ -1,0 +1,14 @@
+{
+  "event_id": "moment-meal-001",
+  "moment_type": "meal",
+  "captured_at": "2026-09-01T12:38:00+09:00",
+  "observations": [
+    "mixed rice bowl visible",
+    "small soup bowl visible",
+    "portion size uncertain",
+    "authorized demo InBody profile: 74.2 kg and 21.8 percent body fat",
+    "saved easy-run pace available"
+  ],
+  "user_goal": "track lunch and compare it with today's planned run without strict dieting",
+  "raw_media_retained": false
+}

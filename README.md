@@ -1,137 +1,222 @@
-# LifeLens
+<div align="center">
+  <img src="public/og-v2.png" alt="LifeLens — Life, understood in motion" width="100%" />
 
-LifeLens is a privacy-first wearable agent that turns everyday moments into
-small, useful next actions across health, work, and relationships. It is built
-for the **Agents for Humans Hackathon** with the AWS Strands Agents SDK.
+  # LifeLens
 
-## What the demo shows
+  **A consent-first contextual agent for smart glasses.**<br />
+  It turns minimized observations from everyday moments into one explainable next action—and waits for the human to approve it.
 
-![LifeLens running HUD prototype](public/lifelens-glasses-run.gif)
+  [![CI](https://github.com/nightandweather/lifelens-agent/actions/workflows/ci.yml/badge.svg)](https://github.com/nightandweather/lifelens-agent/actions/workflows/ci.yml)
+  [![Vuzix APK](https://github.com/nightandweather/lifelens-agent/actions/workflows/vuzix-apk.yml/badge.svg)](https://github.com/nightandweather/lifelens-agent/actions/workflows/vuzix-apk.yml)
+  [![License: MIT](https://img.shields.io/badge/License-MIT-dfff78.svg)](LICENSE)
+  [![AWS Strands](https://img.shields.io/badge/Agent-AWS%20Strands-173d2c.svg)](https://strandsagents.com/)
 
-- A meal moment becomes a calorie **range** and, when the user separately
-  authorizes a prior InBody record and running profile, an optional extra-time
-  comparison that the user must confirm. It is never framed as punishment.
-- A conversation becomes an explicit commitment and a neutral reflection,
-  without guessing anyone's feelings or personality.
-- An evening context becomes a gentle activity proposal based on the user's
-  own stated routine.
-- During an approved workout session, camera, map, motion, and weather signals
-  combine into a contextual route suggestion without silently sharing location.
-- No memory or external action is committed without explicit confirmation.
+  [**Try the live demo**](https://lifelens-agent.kanghoun.chatgpt.site) ·
+  [Architecture](docs/ARCHITECTURE.md) ·
+  [Hardware guide](docs/HARDWARE.md) ·
+  [App landscape](docs/LANDSCAPE.md) ·
+  [Slurm GPU guide](docs/SLURM.md)
+</div>
+
+---
+
+## Why LifeLens
+
+Most wearable assistants either record too much or act with too much confidence.
+LifeLens takes a narrower path:
+
+1. the user starts a visible, scoped session;
+2. on-device vision/audio turns raw samples into a small structured `MomentEvent`;
+3. a Strands agent proposes exactly one action and explains why;
+4. a safety validator rejects hidden-state inference and unconfirmed actions;
+5. only the exact action approved by the user can create a minimal receipt.
+
+## Four moments, one safety contract
+
+| Moment | Enabled context | Proposal | Never automatic |
+| --- | --- | --- | --- |
+| Lunch | Vision, authorized InBody record, run profile | Calorie range and optional activity comparison | Meal logging |
+| Conversation | Temporary voice, calendar | Remember an explicit promise | Message sending or emotion inference |
+| Evening | Activity, routine, calendar | A gentle walk that fits the day | Exercise prescription |
+| On the move | Camera, motion, weather, map | A shorter well-lit route home | Rerouting or location sharing |
+
+![Animated LifeLens running HUD](public/lifelens-glasses-run.gif)
+
+## What is real today?
+
+| Component | Status | Notes |
+| --- | --- | --- |
+| Interactive web experience | **Live** | Four operable moments, session pause, approvals, receipts, removable memory |
+| Consent and action API | **Live** | Rejects missing confirmation and unsupported actions |
+| Python agent service | **Runnable** | Deterministic mode or real Strands + Amazon Bedrock mode |
+| Safety validator | **Tested** | Raw-media rejection, confirmation, structured-only storage |
+| Vuzix M400/M4000 Android client | **Buildable** | Camera2 preview, speech input, D-pad navigation, center-button approval |
+| On-device perception boundary | **Implemented contract** | Android adapter interface and shared event schema; model integration pending device profiling |
+| Ray-Ban bridge | **Contract + fixture** | Native Meta bridge remains hardware-dependent |
+| Live physical-device validation | **Pending hardware** | Evaluation-unit request is open with Vuzix |
+
+The public walkthrough remains deterministic so judges can always complete it.
+Its **Analyze with live AI** button switches to the deployed Strands service when
+`LIFELENS_AGENT_API_URL` is configured; the UI labels a missing service instead
+of pretending a model response occurred.
 
 ## Architecture
 
 ```mermaid
 flowchart LR
-    A[Ray-Ban Meta camera and audio] --> B[Meta Device Access Toolkit]
-    M[Mock Device Kit fixtures] --> C[Wearable input adapter]
-    B --> C
-    C -->|derived observations only| D[LifeLens Strands Agent]
-    D --> E[Amazon Bedrock]
-    D --> F[Safety validator]
-    F --> G[Proposed next action]
-    G --> H{User confirms?}
-    H -->|No| I[Discard]
-    H -->|Yes| J[Minimal structured memory]
+    A[Phone or glasses camera / temporary audio] --> B[On-device perception]
+    X[Motion / weather / map / health] --> B
+    B -->|Minimized MomentEvent; no raw media| C[Local policy gate]
+    C --> D{Cloud reasoning enabled?}
+    D -->|Yes| E[Strands + Amazon Bedrock]
+    D -->|No| F[Local deterministic planner]
+    E --> G[Safety validator]
+    F --> G
+    G --> H[One proposed action]
+    H --> I{Explicit approval?}
+    I -->|No| J[Discard]
+    I -->|Yes| K[Minimal action receipt]
 ```
 
-LifeLens is hardware-agnostic: the same wearable input contract can accept a
-Ray-Ban bridge today and an Android XR or Samsung glasses adapter as those
-device APIs become available.
+The browser never receives AWS credentials. The web safety proxy sends only the
+selected structured moment to the agent service, applies a timeout, and validates
+the response again before rendering it. See [the full architecture and threat
+boundaries](docs/ARCHITECTURE.md).
 
-For a buildable hardware path, Vuzix M400/M4000 can run the Android bridge with
-Camera2, sensor, microphone/MediaRecorder, and Vuzix Speech SDK access. Meta
-Wearables Device Access Toolkit is the Ray-Ban path for camera and audio; visual
-HUD output targets display-capable Meta glasses or Vuzix display devices.
+The intended mobile path is **local first**: Core ML + Vision on iPhone, or
+MediaPipe/LiteRT-compatible models on Android and Vuzix. A small detector can
+handle frequent frames; a local VLM can inspect only user-selected keyframes.
+Cloud Strands/Bedrock reasoning is optional and receives structured observations,
+not the original image. See the [on-device AI plan](docs/ON_DEVICE_AI.md).
 
-Each signal is scoped independently. Enabling camera access does not grant map,
-health, calendar, screen, messaging, or location-sharing access. The agent may
-combine only the signals enabled for the active session, and any external action
-still requires a separate confirmation.
+## Quick start
 
-The current hosted demo uses the same consent-gated contract with simulated
-moments. The Python service switches between a deterministic demo evaluator and
-the real Bedrock-backed Strands agent with one environment flag.
-
-## Run the interactive web demo
+### Web
 
 Requires Node.js 22.13 or newer.
 
 ```bash
-npm install
+git clone https://github.com/nightandweather/lifelens-agent.git
+cd lifelens-agent
+npm ci
 npm run dev
 ```
 
-The web demo now has two clearly separated modes:
+Open the local URL printed by the development server.
 
-- the built-in deterministic story keeps the public walkthrough reliable;
-- **Analyze with live AI** sends only the selected structured moment to a
-  deployed LifeLens Strands service and renders the fresh Bedrock response.
+### Agent API
 
-To connect the live button, configure the web deployment with the service URL:
-
-```bash
-LIFELENS_AGENT_API_URL=https://your-agent-service.example.com
-```
-
-The browser never receives AWS credentials. `/api/analyze` proxies the minimized
-event, applies a timeout, verifies that confirmation is still required, and
-rejects prohibited hidden-state inferences before returning the response.
-
-## Run the Strands agent API
+Requires Python 3.11 or newer.
 
 ```bash
 cd backend
-python -m venv .venv
+python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 uvicorn lifelens.api:app --reload
 ```
 
-Demo mode is the default and requires no AWS account. To use Amazon Bedrock,
-configure standard AWS credentials, ensure model access in your region, and run:
+Demo mode is deterministic and needs no cloud account. Try it with:
+
+```bash
+curl -s http://127.0.0.1:8000/health
+curl -s -X POST http://127.0.0.1:8000/v1/moments/analyze \
+  -H 'Content-Type: application/json' \
+  --data-binary @fixtures/meal.json
+```
+
+### Real Strands + Bedrock mode
+
+Configure standard AWS credentials with Bedrock model access, then run:
 
 ```bash
 export LIFELENS_DEMO_MODE=0
-uvicorn lifelens.api:app --reload
+uvicorn lifelens.api:app --host 0.0.0.0 --port 8000
 ```
 
-API surfaces:
-
-- `POST /v1/moments/analyze` — turn a structured wearable moment into a proposal.
-- `POST /v1/actions/confirm` — commit the exact proposal only after confirmation.
-- `GET /health` — report whether the service is in demo or Bedrock mode.
-- `POST /api/analyze` — web-side safety proxy to the deployed Strands service.
-
-## Ray-Ban integration boundary
-
-`RayBanMockAdapter` reads JSONL events that match the downstream contract of a
-native Meta Device Access Toolkit bridge. The native iOS/Android app should:
-
-1. start capture only after a visible user action;
-2. sample the camera/audio stream for the active moment;
-3. convert media into the minimal `MomentEvent` observations;
-4. discard raw samples; and
-5. send only that event to LifeLens.
-
-The included fixtures simulate lunch, a work conversation, and an evening at
-home without requiring physical glasses.
-
-## Safety guarantees in the MVP
-
-- observable behavior only; no emotion, personality, honesty, or diagnosis claims;
-- calorie and activity outputs remain estimates;
-- raw media is rejected by the backend contract;
-- all proposed actions require confirmation;
-- tests verify that unconfirmed actions cannot mutate memory.
-
-## Tests
+Point the web server at that service:
 
 ```bash
-cd backend
-pytest
+export LIFELENS_AGENT_API_URL=http://127.0.0.1:8000
+npm run dev
 ```
 
-## License
+> AWS Builder ID alone does not grant Bedrock runtime access. Use an AWS account
+> with IAM credentials and the required Bedrock permissions.
 
-MIT
+### Docker
+
+```bash
+docker build -t lifelens-agent ./backend
+docker run --rm -p 8000:8000 lifelens-agent
+```
+
+## API
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| `GET` | `/health` | Report deterministic or Bedrock mode |
+| `POST` | `/v1/moments/analyze` | Convert a minimized moment into one proposal |
+| `POST` | `/v1/actions/confirm` | Commit only an explicitly approved proposal |
+| `POST` | `/api/analyze` | Web safety proxy to the deployed agent service |
+
+Interactive API documentation is available at `/docs` while the Python service
+is running.
+
+## Vuzix prototype
+
+The Android project in [`android-vuzix`](android-vuzix) targets M400/M4000 and
+uses standard Android APIs plus the hardware interaction model:
+
+- Camera2 live preview;
+- temporary speech recognition with visible session state;
+- left/right D-pad moment navigation;
+- center-button confirmation;
+- signed release APK build in GitHub Actions.
+
+See [the hardware integration guide](docs/HARDWARE.md) and the current
+[Vuzix App Store listing draft](VUZIX_STORE.md).
+
+## Safety properties
+
+- Raw image, video, and audio are not accepted by the agent event contract.
+- Every proposal must set `requires_confirmation=true`.
+- Conversation analysis cannot claim emotion, honesty, intent, diagnosis, or personality.
+- Food and activity numbers remain ranges and are never framed as punishment.
+- Location, health, calendar, screen, and communication are separate permissions.
+- Confirmed records contain only explicit structured fields.
+
+Run all checks:
+
+```bash
+npm test
+cd backend && .venv/bin/pytest
+```
+
+## Repository map
+
+```text
+app/              Interactive web product and server-side safety proxy
+backend/          FastAPI + Strands agent, tools, models, validators, tests
+android-vuzix/    Native M400/M4000 Android HUD prototype
+docs/             Architecture, hardware, privacy, and Slurm guides
+schemas/          Hardware-neutral structured event contract
+slurm/            Portable GPU environment smoke test
+.github/          CI, APK build, issue forms, and dependency updates
+```
+
+## Contributing
+
+Small, safety-preserving contributions are welcome. Read
+[`CONTRIBUTING.md`](CONTRIBUTING.md) before opening a pull request. For security
+or privacy issues, follow [`SECURITY.md`](SECURITY.md) instead of filing a public
+issue.
+
+## Status and disclaimer
+
+LifeLens is an open hackathon prototype, not a medical device or emergency
+navigation system. Calorie, body, exercise, route, and safety information are
+estimates and do not replace professional advice or personal judgment.
+
+Built for the **Agents for Humans Hackathon** with AWS Strands Agents and Amazon
+Bedrock. Licensed under the [MIT License](LICENSE).

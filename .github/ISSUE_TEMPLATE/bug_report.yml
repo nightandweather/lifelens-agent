@@ -1,0 +1,42 @@
+name: Bug report
+description: Report a reproducible LifeLens failure using synthetic data.
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Component
+      options: [Web demo, Agent API, Vuzix Android app, Safety contract, Documentation]
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What happened?
+      description: Describe the observed and expected behavior.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: Use synthetic observations only. Do not attach private recordings or health data.
+      placeholder: |
+        1. Start...
+        2. Select...
+        3. Observe...
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, browser/device, commit, and relevant runtime versions.
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Privacy check
+      options:
+        - label: I removed credentials, real recordings, transcripts, and personal health data.
+          required: true

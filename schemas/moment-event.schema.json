@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/nightandweather/lifelens-agent/schemas/moment-event.schema.json",
+  "title": "LifeLens MomentEvent",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["event_id", "moment_type", "captured_at", "observations", "raw_media_retained"],
+  "properties": {
+    "event_id": { "type": "string", "minLength": 1 },
+    "moment_type": { "enum": ["meal", "conversation", "evening", "mobility"] },
+    "captured_at": { "type": "string", "format": "date-time" },
+    "observations": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 12,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "transcript_excerpt": { "type": ["string", "null"], "maxLength": 500 },
+    "user_goal": { "type": ["string", "null"], "maxLength": 240 },
+    "raw_media_retained": { "const": false }
+  }
+}
