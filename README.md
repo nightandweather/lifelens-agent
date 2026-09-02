@@ -12,7 +12,9 @@
   [![AWS Strands](https://img.shields.io/badge/Agent-AWS%20Strands-173d2c.svg)](https://strandsagents.com/)
 
   [**Try the live demo**](https://lifelens-agent.kanghoun.chatgpt.site) ·
+  [Judge guide](JUDGES.md) ·
   [Architecture](docs/ARCHITECTURE.md) ·
+  [Demo script](docs/DEMO_SCRIPT.md) ·
   [Hardware guide](docs/HARDWARE.md) ·
   [Ray-Ban Meta plan](rayban-meta/README.md) ·
   [App landscape](docs/LANDSCAPE.md) ·
@@ -49,7 +51,7 @@ LifeLens takes a narrower path:
 | --- | --- | --- |
 | Interactive web experience | **Live** | Four operable moments, session pause, approvals, receipts, removable memory |
 | Consent and action API | **Live** | Rejects missing confirmation and unsupported actions |
-| Python agent service | **Runnable** | Deterministic mode or real Strands + Amazon Bedrock mode |
+| Python agent service | **Live on AWS** | Real Strands + Amazon Bedrock judge endpoint with deterministic local fallback |
 | Safety validator | **Tested** | Raw-media rejection, confirmation, structured-only storage |
 | Vuzix M400/M4000 Android client | **Buildable** | Camera2 preview, speech input, D-pad navigation, center-button approval |
 | On-device perception boundary | **Implemented contract** | Android adapter interface and shared event schema; model integration pending device profiling |
@@ -57,11 +59,13 @@ LifeLens takes a narrower path:
 | Live physical-device validation | **Pending hardware** | Evaluation-unit request is open with Vuzix |
 
 The public walkthrough remains deterministic so judges can always complete it.
-Its **Analyze with live AI** button switches to the deployed Strands service when
-`LIFELENS_AGENT_API_URL` is configured; the UI labels a missing service instead
-of pretending a model response occurred.
+Its **Analyze with live AI** button calls the deployed Strands + Amazon Bedrock
+service; the UI labels any service failure instead of pretending a model
+response occurred.
 
 ## Architecture
+
+![LifeLens architecture](docs/architecture.png)
 
 ```mermaid
 flowchart LR
@@ -82,7 +86,7 @@ flowchart LR
 The browser never receives AWS credentials. The web safety proxy sends only the
 selected structured moment to the agent service, applies a timeout, and validates
 the response again before rendering it. See [the full architecture and threat
-boundaries](docs/ARCHITECTURE.md).
+boundaries](docs/ARCHITECTURE.md) and [AWS deployment guide](docs/AWS_DEPLOYMENT.md).
 
 The intended mobile path is **local first**: Core ML + Vision on iPhone, or
 MediaPipe/LiteRT-compatible models on Android and Vuzix. A small detector can
@@ -210,6 +214,7 @@ cd backend && .venv/bin/pytest
 ```text
 app/              Interactive web product and server-side safety proxy
 backend/          FastAPI + Strands agent, tools, models, validators, tests
+template.yaml     Reproducible AWS SAM deployment for the live judge endpoint
 android-vuzix/    Native M400/M4000 Android HUD prototype
 rayban-meta/      Official Meta DAT integration plan and adapter boundary
 docs/             Architecture, hardware, privacy, and Slurm guides
@@ -224,6 +229,17 @@ Small, safety-preserving contributions are welcome. Read
 [`CONTRIBUTING.md`](CONTRIBUTING.md) before opening a pull request. For security
 or privacy issues, follow [`SECURITY.md`](SECURITY.md) instead of filing a public
 issue.
+
+## Hackathon build provenance
+
+LifeLens was created during the Agents for Humans Hackathon submission period.
+The repository's first commit is dated September 1, 2026; its public Git history
+documents the build from the initial interactive demo through the Strands,
+Bedrock, Vuzix, and Meta integration work. No pre-existing proprietary product
+code was incorporated. Standard open-source frameworks, SDKs, starter tooling,
+and AI coding assistance were used under their applicable licenses. Hardware
+integrations are labeled as implemented, planned, or pending physical validation
+rather than being presented as completed work.
 
 ## Status and disclaimer
 

@@ -18,7 +18,9 @@ def validate_event(event: MomentEvent) -> None:
         raise ValueError("LifeLens accepts derived observations, not retained raw media.")
 
 
-def validate_analysis(analysis: MomentAnalysis) -> MomentAnalysis:
+def validate_analysis(
+    analysis: MomentAnalysis, event: MomentEvent | None = None
+) -> MomentAnalysis:
     combined = " ".join(
         [analysis.headline, analysis.observation, analysis.reasoning, analysis.uncertainty]
     ).lower()
@@ -26,13 +28,21 @@ def validate_analysis(analysis: MomentAnalysis) -> MomentAnalysis:
         raise ValueError("Analysis contains a prohibited hidden-state inference.")
     if not analysis.proposed_action.requires_confirmation:
         raise ValueError("Every LifeLens action must require confirmation.")
+    expected_actions = {
+        MomentType.meal: "save_meal_estimate",
+        MomentType.conversation: "create_follow_up",
+        MomentType.evening: "start_activity",
+        MomentType.mobility: "apply_route_suggestion",
+    }
+    if event and analysis.proposed_action.action_type != expected_actions[event.moment_type]:
+        raise ValueError("Proposed action does not match the observed moment type.")
     return analysis
 
 
 def demo_analysis(event: MomentEvent) -> MomentAnalysis:
     """Deterministic fallback used for local demos and automated evaluation."""
     if event.moment_type is MomentType.meal:
-        return MomentAnalysis(
+        return validate_analysis(MomentAnalysis(
             moment_type=event.moment_type,
             headline="A balanced lunch, with room to adjust.",
             observation="A mixed rice bowl and soup are visible.",
@@ -53,10 +63,10 @@ def demo_analysis(event: MomentEvent) -> MomentAnalysis:
                 "No diagnosis or nutrition prescription",
                 "Exercise is framed as optional, never as punishment for eating",
             ],
-        )
+        ), event)
 
     if event.moment_type is MomentType.conversation:
-        return MomentAnalysis(
+        return validate_analysis(MomentAnalysis(
             moment_type=event.moment_type,
             headline="One promise is worth following through on.",
             observation="You explicitly offered to send revised slides by Friday afternoon.",
@@ -68,10 +78,10 @@ def demo_analysis(event: MomentEvent) -> MomentAnalysis:
                 payload={"summary": "Send revised slides to Mina", "due": "Friday 15:00"},
             ),
             safety_notes=["No emotion inference", "Nothing sent automatically"],
-        )
+        ), event)
 
     if event.moment_type is MomentType.mobility:
-        return MomentAnalysis(
+        return validate_analysis(MomentAnalysis(
             moment_type=event.moment_type,
             headline="Adjust the route, keep the goal.",
             observation="Rain is approaching and your pace has slowed for six minutes.",
@@ -83,9 +93,9 @@ def demo_analysis(event: MomentEvent) -> MomentAnalysis:
                 payload={"route": "well_lit_home", "eta_minutes": 12},
             ),
             safety_notes=["Location is not shared", "Rerouting requires approval"],
-        )
+        ), event)
 
-    return MomentAnalysis(
+    return validate_analysis(MomentAnalysis(
         moment_type=event.moment_type,
         headline="A small move could close the loop.",
         observation="You have been seated for 52 minutes after a low-movement day.",
@@ -97,4 +107,4 @@ def demo_analysis(event: MomentEvent) -> MomentAnalysis:
             payload={"activity": "walk", "minutes": 20},
         ),
         safety_notes=["Skip if unwell", "User controls intensity and timing"],
-    )
+    ), event)

@@ -76,7 +76,12 @@ export async function POST(request: Request) {
   try {
     const upstream = await fetch(`${agentUrl}/v1/moments/analyze`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        ...(process.env.LIFELENS_AGENT_TOKEN
+          ? { Authorization: `Bearer ${process.env.LIFELENS_AGENT_TOKEN}` }
+          : {}),
+      },
       body: JSON.stringify(moments[body.scene]),
       signal: AbortSignal.timeout(20_000),
     });

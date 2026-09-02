@@ -1,0 +1,23 @@
+digraph LifeLens {
+  graph [rankdir=LR, bgcolor="#f4f1e8", pad="0.35", nodesep="0.45", ranksep="0.7", fontname="Arial"];
+  node [shape=box, style="rounded,filled", fontname="Arial", fontsize=12, color="#1b211c", fillcolor="#ffffff", margin="0.18,0.12"];
+  edge [color="#536158", penwidth=1.5, arrowsize=0.75, fontname="Arial", fontsize=9];
+
+  glasses [label="Vuzix / Ray-Ban\nCamera + voice", fillcolor="#dff57a"];
+  phone [label="Phone / web fallback\nCamera + user context", fillcolor="#dff57a"];
+  local [label="On-device perception\nSelect + minimize frames"];
+  event [label="MomentEvent\nNo raw media retained", fillcolor="#fff1c7"];
+  agent [label="Strands Agent\nAmazon Bedrock", fillcolor="#ff8055", fontcolor="#ffffff"];
+  safety [label="Safety validator\nOne explainable proposal"];
+  human [label="Human approval gate\nAccept or discard", fillcolor="#cfe9ff"];
+  receipt [label="Minimal action receipt\nNo hidden action"];
+
+  glasses -> local;
+  phone -> local;
+  local -> event [label="structured only"];
+  event -> agent [label="optional cloud reasoning"];
+  agent -> safety;
+  safety -> human;
+  human -> receipt [label="explicit yes"];
+  human -> event [label="decline / revise", style=dashed];
+}

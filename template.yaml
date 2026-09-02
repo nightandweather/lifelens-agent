@@ -1,0 +1,53 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: Low-cost public judge endpoint for the LifeLens Strands agent
+
+Parameters:
+  AgentToken:
+    Type: String
+    NoEcho: true
+  AllowedOrigin:
+    Type: String
+    Default: https://lifelens-agent.kanghoun.chatgpt.site
+  ModelId:
+    Type: String
+    Default: global.amazon.nova-2-lite-v1:0
+
+Resources:
+  LifeLensAgent:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: LifeLensAgent
+      CodeUri: backend/
+      Handler: lambda_handler.handler
+      Runtime: python3.12
+      Architectures: [x86_64]
+      MemorySize: 512
+      Timeout: 60
+      ReservedConcurrentExecutions: 2
+      Layers:
+        - arn:aws:lambda:ap-northeast-2:856699698935:layer:strands-agents-py3_12-x86_64:2
+      Environment:
+        Variables:
+          LIFELENS_DEMO_MODE: "0"
+          LIFELENS_MODEL_ID: !Ref ModelId
+          LIFELENS_AGENT_TOKEN: !Ref AgentToken
+          LIFELENS_ALLOWED_ORIGIN: !Ref AllowedOrigin
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - bedrock:InvokeModel
+                - bedrock:InvokeModelWithResponseStream
+              Resource: "*"
+      FunctionUrlConfig:
+        AuthType: NONE
+        Cors:
+          AllowOrigins: [!Ref AllowedOrigin]
+          AllowMethods: [GET, POST]
+          AllowHeaders: [content-type, authorization]
+          MaxAge: 86400
+
+Outputs:
+  AgentUrl:
+    Value: !GetAtt LifeLensAgentUrl.FunctionUrl
