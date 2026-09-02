@@ -35,16 +35,21 @@ VUZIX_KEY_PASSWORD
 Never commit a keystore or password. A successful workflow uploads the signed
 APK as a run artifact.
 
-## Ray-Ban bridge
+## Ray-Ban Meta
 
-`RayBanMockAdapter` demonstrates the downstream contract; it is not presented
-as a completed native integration. A physical-device bridge should:
+Meta's official Wearables Device Access Toolkit extends a companion iOS or
+Android application rather than installing this Vuzix APK on the glasses.
 
-1. begin only after an explicit visible action;
-2. sample camera/audio during the active moment;
-3. derive a bounded list of observations;
-4. set `raw_media_retained=false` only after deletion succeeds;
-5. send the minimized event over an authenticated channel.
+- Camera: SDK video streaming and photo capture for Ray-Ban Meta Gen 1/2.
+- Audio: microphone and speakers through the phone platform's Bluetooth profiles.
+- Display: only Meta Ray-Ban Display models expose a display path.
+- Development without glasses: Meta's Mock Device Kit simulates permissions,
+  device state, and media streaming.
+- Distribution: developer preview release channels, not general publishing yet.
+
+LifeLens should sample the stream in the companion app, run Core ML/Vision or an
+Android local model, and discard raw frames before producing `MomentEvent`.
+See [`../rayban-meta/README.md`](../rayban-meta/README.md).
 
 ## Device validation checklist
 

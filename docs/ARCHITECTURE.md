@@ -68,9 +68,10 @@ through the standard AWS credential chain.
 
 ### Wearable adapters
 
-The Vuzix client is a native Android implementation. The Ray-Ban adapter is a
-contract boundary and JSONL fixture pending physical-device access. Both target
-the same `MomentEvent` schema so reasoning and safety are hardware-independent.
+The Vuzix client is a native Android implementation. The Ray-Ban Meta adapter
+targets Meta's official Device Access Toolkit for iOS or Android and can start
+with its Mock Device Kit. Both target the same `MomentEvent` schema so reasoning
+and safety are hardware-independent. Physical Ray-Ban testing is still pending.
 
 ### On-device perception
 

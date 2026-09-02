@@ -14,6 +14,7 @@
   [**Try the live demo**](https://lifelens-agent.kanghoun.chatgpt.site) ·
   [Architecture](docs/ARCHITECTURE.md) ·
   [Hardware guide](docs/HARDWARE.md) ·
+  [Ray-Ban Meta plan](rayban-meta/README.md) ·
   [App landscape](docs/LANDSCAPE.md) ·
   [Slurm GPU guide](docs/SLURM.md)
 </div>
@@ -52,7 +53,7 @@ LifeLens takes a narrower path:
 | Safety validator | **Tested** | Raw-media rejection, confirmation, structured-only storage |
 | Vuzix M400/M4000 Android client | **Buildable** | Camera2 preview, speech input, D-pad navigation, center-button approval |
 | On-device perception boundary | **Implemented contract** | Android adapter interface and shared event schema; model integration pending device profiling |
-| Ray-Ban bridge | **Contract + fixture** | Native Meta bridge remains hardware-dependent |
+| Ray-Ban Meta bridge | **Official SDK plan + fixture** | Meta DAT supports iOS/Android camera access and a Mock Device Kit; physical validation pending |
 | Live physical-device validation | **Pending hardware** | Evaluation-unit request is open with Vuzix |
 
 The public walkthrough remains deterministic so judges can always complete it.
@@ -177,6 +178,17 @@ uses standard Android APIs plus the hardware interaction model:
 See [the hardware integration guide](docs/HARDWARE.md) and the current
 [Vuzix App Store listing draft](VUZIX_STORE.md).
 
+## Ray-Ban Meta integration
+
+Meta now provides an official Wearables Device Access Toolkit for both iOS and
+Android. LifeLens will consume an explicitly started camera stream in the phone
+companion app, run local perception on selected frames, and emit the same
+hardware-neutral `MomentEvent` used by Vuzix. Development can start with Meta's
+Mock Device Kit; physical-device latency and audio behavior remain unvalidated.
+
+See the [Ray-Ban Meta integration plan](rayban-meta/README.md). The integration
+is a developer-preview prototype and is not presented as a published Meta app.
+
 ## Safety properties
 
 - Raw image, video, and audio are not accepted by the agent event contract.
@@ -199,6 +211,7 @@ cd backend && .venv/bin/pytest
 app/              Interactive web product and server-side safety proxy
 backend/          FastAPI + Strands agent, tools, models, validators, tests
 android-vuzix/    Native M400/M4000 Android HUD prototype
+rayban-meta/      Official Meta DAT integration plan and adapter boundary
 docs/             Architecture, hardware, privacy, and Slurm guides
 schemas/          Hardware-neutral structured event contract
 slurm/            Portable GPU environment smoke test

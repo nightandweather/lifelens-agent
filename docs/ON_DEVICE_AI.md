@@ -29,13 +29,18 @@ than treating every frame as a chat prompt.
 
 | Platform | Recommended local path | LifeLens output |
 | --- | --- | --- |
-| Vuzix / Android | CameraX or Camera2 + MediaPipe Tasks or a LiteRT-compatible model | `MomentEvent` JSON |
-| iPhone | AVFoundation + Vision + Core ML | The same `MomentEvent` JSON |
+| Vuzix / Android | Camera2 + MediaPipe Tasks or a LiteRT-compatible model | `MomentEvent` JSON |
+| Ray-Ban Meta + Android | Meta DAT stream + MediaPipe/LiteRT-compatible model | The same `MomentEvent` JSON |
+| Ray-Ban Meta + iPhone | Meta DAT stream + Vision + Core ML | The same `MomentEvent` JSON |
 | Browser demo | Deterministic, labeled fixtures | The same contract for evaluation |
 
 Android/Vuzix is first because the existing M400/M4000 prototype is a native
 Android app. iPhone support should be a separate Swift adapter rather than a
 second safety and agent stack.
+
+Meta's Mock Device Kit makes the Ray-Ban companion adapter testable before
+hardware arrives, but physical-device latency, thermal behavior, and Bluetooth
+audio still require an actual pair.
 
 ## Current implementation truth
 
