@@ -26,23 +26,23 @@ export async function generateMetadata(): Promise<Metadata> {
 
   return {
     metadataBase: new URL(baseUrl),
-    title: "LifeLens — A human-first daily agent",
+    title: "LifeLens — Life, understood in motion",
     description:
-      "A privacy-first agent that turns everyday moments into useful next steps across health, work, and relationships.",
+      "An operable, consent-first smart-glasses agent for meals, movement, commitments, and safer everyday decisions.",
     icons: {
       icon: "/favicon.svg",
       shortcut: "/favicon.svg",
     },
     openGraph: {
       title: "LifeLens",
-      description: "Your life, gently in focus.",
-      images: [{ url: `${baseUrl}/og.png`, width: 1200, height: 630 }],
+      description: "Life, understood in motion.",
+      images: [{ url: `${baseUrl}/og-v2.png`, width: 1200, height: 630 }],
     },
     twitter: {
       card: "summary_large_image",
       title: "LifeLens",
-      description: "Your life, gently in focus.",
-      images: [`${baseUrl}/og.png`],
+      description: "Life, understood in motion.",
+      images: [`${baseUrl}/og-v2.png`],
     },
   };
 }

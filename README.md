@@ -62,6 +62,22 @@ npm install
 npm run dev
 ```
 
+The web demo now has two clearly separated modes:
+
+- the built-in deterministic story keeps the public walkthrough reliable;
+- **Analyze with live AI** sends only the selected structured moment to a
+  deployed LifeLens Strands service and renders the fresh Bedrock response.
+
+To connect the live button, configure the web deployment with the service URL:
+
+```bash
+LIFELENS_AGENT_API_URL=https://your-agent-service.example.com
+```
+
+The browser never receives AWS credentials. `/api/analyze` proxies the minimized
+event, applies a timeout, verifies that confirmation is still required, and
+rejects prohibited hidden-state inferences before returning the response.
+
 ## Run the Strands agent API
 
 ```bash
@@ -85,6 +101,7 @@ API surfaces:
 - `POST /v1/moments/analyze` — turn a structured wearable moment into a proposal.
 - `POST /v1/actions/confirm` — commit the exact proposal only after confirmation.
 - `GET /health` — report whether the service is in demo or Bedrock mode.
+- `POST /api/analyze` — web-side safety proxy to the deployed Strands service.
 
 ## Ray-Ban integration boundary
 
