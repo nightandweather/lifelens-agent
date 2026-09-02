@@ -28,7 +28,12 @@ type LiveAnalysis = {
   observation?: string;
   reasoning?: string;
   uncertainty?: string;
-  proposed_action?: { label?: string; requires_confirmation?: boolean };
+  proposed_action?: {
+    action_type?: string;
+    label?: string;
+    payload?: Record<string, unknown>;
+    requires_confirmation?: boolean;
+  };
   safety_notes?: string[];
 };
 
@@ -189,6 +194,14 @@ export default function Home() {
     [activeKey],
   );
 
+  const demoStage = accepted.includes(activeKey)
+    ? 4
+    : aiState === "live"
+      ? 3
+      : aiState === "loading"
+        ? 2
+        : 1;
+
   useEffect(() => {
     if (!autoPlay || !sessionOn) return;
     const timer = window.setInterval(() => {
@@ -319,7 +332,7 @@ export default function Home() {
 
       <section className="live-section" id="live">
         <header className="section-heading">
-          <div><p className="kicker"><span>01</span> OPERABLE PROTOTYPE</p><h2>One day. Four moments.<br />Every action is yours.</h2></div>
+          <div><p className="kicker"><span>01</span> LIVE JUDGE DEMO</p><h2>One moment. One decision.<br />Every action is yours.</h2></div>
           <div className="demo-controls">
             <button className={autoPlay ? "active" : ""} onClick={() => setAutoPlay((value) => !value)} disabled={!sessionOn}>
               {autoPlay ? "Ⅱ Pause day" : "▶ Run the day"}
@@ -327,6 +340,17 @@ export default function Home() {
             <button onClick={resetDay}>Reset</button>
           </div>
         </header>
+
+        <div className="judge-strip" aria-label="End-to-end demo progress">
+          <div className={demoStage >= 1 ? "complete" : ""}><span>01</span><strong>Observe</strong><small>Minimized context</small></div>
+          <i>→</i>
+          <div className={demoStage >= 2 ? "complete" : ""}><span>02</span><strong>Reason</strong><small>Strands + Bedrock</small></div>
+          <i>→</i>
+          <div className={demoStage >= 3 ? "complete" : ""}><span>03</span><strong>Confirm</strong><small>Human decision</small></div>
+          <i>→</i>
+          <div className={demoStage >= 4 ? "complete" : ""}><span>04</span><strong>Receipt</strong><small>Minimal record</small></div>
+          <p><b>JUDGE PATH</b> Choose Lunch → Analyze with live AI → Approve the proposal</p>
+        </div>
 
         <div className="workspace-shell">
           <aside className="moment-rail" aria-label="Choose a moment">
@@ -361,6 +385,12 @@ export default function Home() {
 
           <article className="decision-panel" aria-live="polite">
             <div className="decision-top"><p>{active.eyebrow}</p><span className={`ai-state ${aiState}`}>{aiState === "live" ? "BEDROCK RESPONSE" : aiState === "loading" ? "ANALYZING…" : aiState === "offline" ? "AGENT OFFLINE" : active.confidence}</span></div>
+            {aiState === "live" && (
+              <div className="verified-path" role="status" data-testid="verified-aws-path">
+                <span>LIVE AWS PATH VERIFIED</span>
+                <small>Web proxy → Lambda → Strands SDK → Amazon Bedrock</small>
+              </div>
+            )}
             <h3>{(liveAnalysis?.headline ?? active.title).split("\n").map((line) => <span key={line}>{line}</span>)}</h3>
             <p className="decision-summary">{liveAnalysis?.observation ?? active.summary}</p>
             <div className="reason-box"><span>WHY NOW</span><p>{liveAnalysis?.reasoning ?? active.detail}</p></div>
@@ -368,7 +398,7 @@ export default function Home() {
             <div className="metric-row"><strong>{active.metric}</strong><span>{active.metricLabel}</span></div>
             <div className="decision-actions">
               <button className="approve-button" onClick={acceptAction} disabled={accepted.includes(activeKey)}>
-                {accepted.includes(activeKey) ? "Action approved ✓" : active.action}<span>↗</span>
+                {accepted.includes(activeKey) ? "Action approved ✓" : liveAnalysis?.proposed_action?.label ?? active.action}<span>↗</span>
               </button>
               <button className="secondary-button" onClick={() => setNotice(`${active.secondary} · demo preference updated`)}>{active.secondary}</button>
             </div>

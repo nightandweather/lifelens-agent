@@ -35,6 +35,9 @@ test("server-renders the LifeLens product experience", async () => {
   assert.match(html, /Vuzix M400/);
   assert.match(html, /raw media 0 B/i);
   assert.match(html, /Every action is yours/);
+  assert.match(html, /LIVE JUDGE DEMO/);
+  assert.match(html, /Strands \+ Bedrock/);
+  assert.match(html, /Choose Lunch/);
   assert.match(html, /og-v2\.png/);
   assert.match(html, /role="status"/);
   assert.doesNotMatch(html, /Your site is taking shape|Building your site/);

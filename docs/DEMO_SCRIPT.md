@@ -1,9 +1,9 @@
 # LifeLens demo video script
 
-Target length: **3 minutes 30 seconds**. The final upload must be public on
+Target length: **3 minutes**. The final upload must be public on
 YouTube or Vimeo and remain under the hackathon's five-minute limit.
 
-## 0:00–0:25 — Problem and audience
+## 0:00–0:20 — Problem and audience
 
 Show a quick sequence of lunch, work, sitting at home, and walking outside.
 
@@ -12,7 +12,7 @@ Show a quick sequence of lunch, work, sitting at home, and walking outside.
 > acts. LifeLens is for people who want practical support from smart glasses
 > without turning their day into a permanent recording.
 
-## 0:25–0:45 — Product promise
+## 0:20–0:38 — Product promise
 
 Open the public site and pause/resume the private session.
 
@@ -20,21 +20,20 @@ Open the public site and pause/resume the private session.
 > minimized MomentEvent. Raw media is discarded. The agent proposes one next
 > action, explains why, and waits for approval.
 
-## 0:45–1:50 — Working end-to-end demo
+## 0:38–1:38 — Working end-to-end demo
 
 1. Select **Lunch**.
 2. Press **Analyze with live AI** and wait for the `BEDROCK RESPONSE` label.
 3. Read the observation, uncertainty, and proposed action.
 4. Approve the action and show the receipt.
-5. Switch to **Conversation** and point out that LifeLens captures an explicit
-   commitment without emotion or personality inference.
+5. Point to the four-stage judge path: Observe, Reason, Confirm, Receipt.
 6. Pause the session and show that analysis becomes unavailable.
 
 Say explicitly that the button calls the deployed Python Strands agent on AWS
 Lambda, which invokes Amazon Bedrock. Do not call the deterministic scene text
 an AI response.
 
-## 1:50–2:35 — Architecture
+## 1:38–2:15 — Architecture
 
 Show `docs/architecture.png`, then briefly open the repository directories.
 
@@ -46,14 +45,14 @@ Show `docs/architecture.png`, then briefly open the repository directories.
 Show `backend/lifelens/agent.py`, `backend/lifelens/safety.py`, the tests, and the
 Vuzix Android project without dwelling on code.
 
-## 2:35–3:05 — Why it matters
+## 2:15–2:42 — Why it matters
 
 > LifeLens applies to meals, commitments, movement, and navigation, but its real
 > contribution is the boundary: useful context without unlimited surveillance,
 > and assistance without hidden action. The same contract can move from today's
 > web judge path to real glasses when hardware is available.
 
-## 3:05–3:30 — Status and close
+## 2:42–3:00 — Status and close
 
 Show the live URL, passing GitHub Actions checks, and the signed Vuzix APK
 release. Clearly label physical-device validation as pending.
