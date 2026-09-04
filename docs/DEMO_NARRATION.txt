@@ -1,0 +1,15 @@
+Every day, people make dozens of small decisions about food, movement, promises, and getting home safely. Most assistants wait for a prompt. Others demand constant attention or collect far more context than they need. LifeLens is a human-first agent for people who want practical help from smart glasses or a phone, without turning daily life into a permanent recording.
+
+The product starts with a visible private session. Camera, temporary voice, motion, calendar, map, weather, and health data remain separate permissions. On-device perception converts an approved moment into a small structured event, and the raw media is discarded. LifeLens stays quiet until there is a real decision to make.
+
+Here is the complete judge path. I choose the lunch moment. The visual layer has identified a mixed rice bowl, soup, and an uncertain portion size. My authorized profile and easy-run pace are represented only as structured observations. When I select Analyze with live AI, the web proxy sends that minimized event to an AWS Lambda service. A Python agent built with the Strands Agents SDK invokes Amazon Bedrock and returns a structured observation, reasoning, uncertainty, and exactly one proposed action. The interface displays a live AWS path badge only after that response succeeds.
+
+The model does not silently log the meal or prescribe exercise. It presents a conservative calorie range and an optional activity comparison. The wording deliberately avoids punishment and medical claims. I can change the portion, ignore the suggestion, or explicitly approve it. Only after I approve does a separate consent gate create this minimal receipt. The public prototype performs no purchase, message, calendar change, or location share.
+
+The same contract supports three more moments. A conversation can retain an explicit promise without inferring emotion, honesty, intent, or personality. An evening routine can suggest a gentle walk. During an approved workout, camera, motion, map, and weather context can propose a safer route home. Each case follows the same four stages: observe, reason, confirm, and create a minimal receipt.
+
+Under the interface, Vuzix, Ray-Ban, phone, and web adapters produce the same hardware-neutral MomentEvent. Frequent perception is designed to run locally. The cloud receives structured observations, never an unrestricted media stream. Strands and Bedrock produce one explainable proposal. A deterministic validator rejects raw-media retention, unsupported actions, hidden-state claims, and any action that does not require confirmation.
+
+The repository includes the working web application, the deployed Python agent, safety tests, reproducible AWS deployment, an architecture diagram, and a buildable Vuzix Android prototype. Physical glasses validation is still pending, and that limitation is stated clearly. The live demo is public, the code is MIT licensed, and the implementation can be evaluated without hardware.
+
+LifeLens is not valuable because it watches everything. It is valuable because it knows when not to watch, what not to keep, and when the human must decide. It is an agent that looks out for you, not over you.
