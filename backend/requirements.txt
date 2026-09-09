@@ -1,6 +1,6 @@
-fastapi>=0.115,<1
-pydantic>=2.10,<3
-strands-agents>=1.35,<2
-uvicorn[standard]>=0.34,<1
-pytest>=8.3,<9
-httpx>=0.28,<1
+fastapi>=0.141.1,<1
+pydantic>=2.13.5,<3
+strands-agents>=1.54.0,<2
+uvicorn[standard]>=0.52.4,<1
+pytest>=9.1.1,<10
+httpx>=0.28.1,<1
