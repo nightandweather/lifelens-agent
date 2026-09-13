@@ -89,3 +89,17 @@ See [`../rayban-meta/README.md`](../rayban-meta/README.md).
 - Test network loss during analysis and confirmation.
 - Confirm raw samples are absent from logs, caches, crash reports, and backups.
 - Treat route, calorie, and activity outputs as estimates in every screen.
+
+## Validation record — 2026-09-13
+
+- GitHub Actions passed `testDebugUnitTest` (four scene-policy cases),
+  `lintDebug`, `assembleRelease`, and APK signature verification.
+- The deployed vision route accepted the native client's request shape/User-Agent
+  and returned a real food observation from the public smoke-test photo. This is
+  an HTTP integration check, not a camera/device test.
+- The deployed weather route returned HTTP 502 in two checks, while a direct local
+  Open-Meteo request succeeded. The upstream failure in the hosting environment
+  is not yet diagnosed. No forecast is substituted or claimed as current.
+  `KMA_SERVICE_KEY` is not configured, so KMA integration remains pending.
+- Physical camera orientation, buttons, Korean speech services, location and
+  battery measurements remain pending hardware. Meta/Samsung are not implemented.

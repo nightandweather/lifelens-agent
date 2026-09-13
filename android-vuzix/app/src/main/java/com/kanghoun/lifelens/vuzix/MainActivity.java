@@ -113,7 +113,7 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
         if (!active) return; stopVoice(); voiceBusy = true; updateButtons(); long ticket = epoch;
         recognizer = SpeechRecognizer.createSpeechRecognizer(this);
         recognizer.setRecognitionListener(new RecognitionListener() {
-            public void onReadyForSpeech(Bundle b) { status.setText("듣는 중…"); }
+            public void onReadyForSpeech(Bundle b) { if (active && ticket == epoch) status.setText("듣는 중…"); }
             public void onResults(Bundle b) { ArrayList<String> lines = b.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION); stopVoice(); if (active && ticket == epoch && lines != null && !lines.isEmpty()) ask(lines.get(0)); }
             public void onError(int error) { stopVoice(); if (active && ticket == epoch) textQuestion("음성인식 실패 (" + error + "). 질문을 입력할 수 있어요."); }
             public void onBeginningOfSpeech() {} public void onRmsChanged(float x) {} public void onBufferReceived(byte[] b) {} public void onEndOfSpeech() {} public void onPartialResults(Bundle b) {} public void onEvent(int t, Bundle b) {}
@@ -136,7 +136,7 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
     private void locationConsent() { new AlertDialog.Builder(this).setTitle("현재 위치 날씨").setMessage("현재 위치를 약 100m 단위로 줄여 예보 조회에 사용해요. 위치 제공 기능이 없는 기기는 조회할 수 없어요.").setNegativeButton("취소", null).setPositiveButton("동의하고 조회", (d, w) -> { locationConsent = true; if (checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, LOCATION_PERMISSION); else fetchWeather(); }).show(); }
     private void fetchWeather() {
         if (!locationConsent || weatherBusy || checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) return;
-        if (!active) { active = true; epoch++; main.removeCallbacks(scan); main.postDelayed(scan, 3000); } weatherBusy = true; weatherAttempt = SystemClock.elapsedRealtime(); updateButtons(); long ticket = epoch; long request = ++weatherRequest;
+        if (!active) { active = true; epoch++; main.removeCallbacks(scan); main.postDelayed(scan, 3000); } weatherBusy = true; weather = null; title.setText("현재 날씨 확인 중…"); detail.setText(""); weatherAttempt = SystemClock.elapsedRealtime(); updateButtons(); long ticket = epoch; long request = ++weatherRequest;
         LocationManager manager = (LocationManager) getSystemService(LOCATION_SERVICE);
         String provider = manager.isProviderEnabled(LocationManager.NETWORK_PROVIDER) ? LocationManager.NETWORK_PROVIDER : null;
         if (provider == null) { weatherBusy = false; status.setText("네트워크 위치를 사용할 수 없어요. 기기의 위치 서비스를 확인해주세요."); updateButtons(); return; }
@@ -148,7 +148,7 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
             JSONObject coords = json("latitude", Math.round(position.getLatitude() * 1000) / 1000.0, "longitude", Math.round(position.getLongitude() * 1000) / 1000.0);
             gateway.post("weather", json("location", coords, "locationConsent", true), new ContextGateway.Callback() {
                 public void complete(JSONObject result) { if (ticket != epoch || request != weatherRequest || !active) return; weatherBusy = false; weather = result; weatherAt = SystemClock.elapsedRealtime(); title.setText(result.optString("headline")); JSONArray hours = result.optJSONArray("hours"); StringBuilder text = new StringBuilder(); if (hours != null) for (int i = 0; i < Math.min(3, hours.length()); i++) { JSONObject h = hours.optJSONObject(i); if (h != null) text.append(weatherTime(h.optString("time"))).append(" · ").append(h.optString("precipitationLabel")).append("\n"); } text.append(result.optString("fallbackReason", "시간별 예보 · 정확한 시작 분은 알 수 없어요")); detail.setText(text); JSONObject source = result.optJSONObject("source"); status.setText(source == null ? "날씨 조회 완료" : source.optString("name")); say(result.optString("headline")); updateButtons(); }
-                public void failed(String message) { if (ticket != epoch || request != weatherRequest) return; weatherBusy = false; weather = null; status.setText(message); updateButtons(); }
+                public void failed(String message) { if (ticket != epoch || request != weatherRequest) return; weatherBusy = false; weather = null; title.setText("최신 날씨를 확인하지 못했어요"); status.setText(message); updateButtons(); }
             });
         });
     }

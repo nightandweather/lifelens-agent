@@ -46,7 +46,13 @@ public final class HttpContextGateway implements ContextGateway {
                 ByteArrayOutputStream bytes = new ByteArrayOutputStream();
                 try (InputStream in = input) { byte[] buffer = new byte[4096]; int n; while ((n = in.read(buffer)) != -1) { if (bytes.size() + n > 64000) throw new Exception("응답 크기 초과"); bytes.write(buffer, 0, n); } }
                 JSONObject result = new JSONObject(bytes.toString("UTF-8"));
-                if (status >= 400) throw new Exception(result.optString("error", "연결 오류 " + status));
+                if (status >= 400) {
+                    String message = result.optString("error", "서버 연결 오류 " + status);
+                    if (message.length() > 300) message = "서버 연결 오류 " + status;
+                    final String feedback = message;
+                    main.post(() -> { if (ticket == generation.get()) callback.failed(feedback); });
+                    return;
+                }
                 main.post(() -> { if (ticket == generation.get()) callback.complete(result); });
             } catch (Exception error) {
                 main.post(() -> { if (ticket == generation.get()) callback.failed("연결 실패. 네트워크를 확인하고 다시 시도해주세요."); });
