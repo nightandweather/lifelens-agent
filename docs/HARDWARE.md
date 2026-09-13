@@ -6,24 +6,47 @@ controls, and display differences.
 ## Vuzix M400 / M4000
 
 The repository includes a native Android prototype under `android-vuzix/`.
-Current capabilities:
+Current native flow (version 0.3.0):
 
-- Camera2 preview rendered behind the HUD;
-- separate camera and microphone permissions;
-- temporary speech recognition;
-- left/right D-pad navigation;
-- center-button approval;
-- clear status when camera or voice is unavailable.
+1. Start and consent to cloud analysis, then grant camera permission. A reduced
+   640×480 JPEG is sent only while the activity is foregrounded. Stable scenes
+   are sampled every three seconds; automatic requests are at least 20 seconds
+   apart and an unchanged scene is not resubmitted. “다시 보기” explicitly retries.
+2. The HUD shows actual server observations and estimated calorie ranges. Voice
+   output is opt-in. Repeated identical notices are suppressed for three minutes.
+3. “질문” uses the installed Android speech-recognition service with `ko-KR`, then
+   sends the transcript with current context. If recognition is unavailable,
+   a text dialog is offered. Korean recognition and TTS availability on M400
+   firmware require physical verification; the app does not bundle a speech engine.
+4. “날씨” separately asks for approximate location. No fixed demo location is used.
+   A network location provider must exist on the glasses. In commute mode a
+   consented weather query refreshes every five minutes while foregrounded.
+   KMA is used only when configured; Open-Meteo fallback is explicitly labeled.
+5. “기록” opens a confirmation dialog and stores only the food name, calorie range
+   and timestamp on this device (last 20 records). The records dialog can delete them.
+6. Stop, Back or leaving the activity closes camera/microphone, cancels requests,
+   and discards volatile observations. Late responses cannot revive a stopped session.
 
-Build locally with Java 17 and Android SDK 35:
+There is no device pairing, iPhone location relay, background capture or local
+vision model in this native live path yet. Photos are held in memory for the
+request, not written to disk. AWS credentials stay on the server. The legacy
+local-perception interfaces remain a separate future adapter boundary.
+
+## Build and install
+
+Use Java 17, Gradle 8.9 and Android SDK 35:
 
 ```bash
 cd android-vuzix
-gradle assembleDebug
+gradle testDebugUnitTest lintDebug assembleDebug
 adb install -r app/build/outputs/apk/debug/app-debug.apk
 ```
 
-The signed release workflow requires these GitHub Actions secrets:
+For a signed APK, open the repository's **Build signed Vuzix APK** Actions run
+and download the `lifelens-vuzix-release` artifact. Install its `app-release.apk`
+with `adb install -r`. If an older installation uses a different signing key,
+Android will reject an update; uninstalling it first deletes its local records.
+The release workflow uses the existing GitHub secrets:
 
 ```text
 VUZIX_KEYSTORE_BASE64
@@ -32,8 +55,13 @@ VUZIX_KEY_ALIAS
 VUZIX_KEY_PASSWORD
 ```
 
-Never commit a keystore or password. A successful workflow uploads the signed
-APK as a run artifact.
+Never commit a keystore or password. API base is the public LifeLens Site in
+`MainActivity`; there are no AWS tokens or API keys in the APK. Distribution is
+for device testing, not a completed Vuzix store submission.
+
+Official device references: [Vuzix Camera2 guidance](https://support.vuzix.com/docs/camera),
+[M400/M4000 technical details](https://support.vuzix.com/docs/m400-m4000-technical-details),
+[Vuzix Voice Input](https://apps.vuzix.com/app/vuzix-voice-input).
 
 ## Ray-Ban Meta
 

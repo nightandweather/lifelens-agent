@@ -63,7 +63,7 @@ LifeLens takes a narrower path:
 | Consent and action API | **Live** | Rejects missing confirmation and unsupported actions |
 | Python agent service | **Live on AWS** | Real Strands + Amazon Bedrock judge endpoint with deterministic local fallback |
 | Safety validator | **Tested** | Raw-media rejection, confirmation, structured-only storage |
-| Vuzix M400/M4000 Android client | **Buildable** | Camera2 preview, speech input, D-pad navigation, center-button approval |
+| Vuzix M400/M4000 Android client | **Native live integration; hardware validation pending** | Camera2 frame analysis, optional voice questions/TTS, location weather, confirmed local meal records |
 | On-device perception boundary | **Implemented contract** | Android adapter interface and shared event schema; model integration pending device profiling |
 | Ray-Ban Meta bridge | **Official SDK plan + fixture** | Meta DAT supports iOS/Android camera access and a Mock Device Kit; physical validation pending |
 | Live physical-device validation | **Pending hardware** | Evaluation-unit request is open with Vuzix |
@@ -183,14 +183,19 @@ is running.
 The Android project in [`android-vuzix`](android-vuzix) targets M400/M4000 and
 uses standard Android APIs plus the hardware interaction model:
 
-- Camera2 live preview;
-- temporary speech recognition with visible session state;
-- left/right D-pad moment navigation;
-- center-button confirmation;
-- signed release APK build in GitHub Actions.
+- Camera2 preview and stable-scene sampling; explicit consent sends a reduced JPEG to the live Bedrock endpoint;
+- real observation and calorie ranges on the HUD, with change detection and repeated-notice suppression;
+- optional Korean speech recognition and TTS when a compatible system service is installed, plus text-question fallback;
+- location-consented weather with its actual provider, and explicit confirmation before saving a local meal record;
+- pause/stop closes camera and microphone and invalidates pending network callbacks;
+- unit tests, Android lint and signed release APK build in GitHub Actions.
 
-See [the hardware integration guide](docs/HARDWARE.md) and the current
-[Vuzix App Store listing draft](VUZIX_STORE.md).
+This is an integrated native client, **not a physically validated glasses release**.
+The current cloud-perception path is separate from the original local-only
+`MomentEvent` contract. Read [the hardware guide](docs/HARDWARE.md) for install
+steps and remaining device checks, and [the adapter plan](docs/DEVICE_ADAPTERS.md)
+for Meta and Samsung scope. The older [store listing draft](VUZIX_STORE.md)
+needs reconciliation with the cloud-consent flow before any store submission.
 
 ## Ray-Ban Meta integration
 
