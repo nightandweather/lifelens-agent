@@ -23,6 +23,16 @@
 
 ---
 
+## Wanted Live development
+
+The new [iPhone live experience](https://lifelens-agent.kanghoun.chatgpt.site/live)
+adds real camera input, Korean voice questions, and location-based weather.
+**Unlike the original local-first design, this prototype sends sampled photos to
+Amazon Bedrock only after explicit cloud-photo consent.** It does not yet connect
+to physical glasses. KMA and nearby-restaurant lookup depend on configured API
+keys; weather fallback is labeled with its actual provider.
+See [implementation, privacy boundaries and release gates](docs/WANTED_LIVE.md).
+
 ## Why LifeLens
 
 Most wearable assistants either record too much or act with too much confidence.

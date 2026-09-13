@@ -1,0 +1,32 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Isolated LifeLens Wanted live-perception endpoint
+Parameters:
+  LiveToken:
+    Type: String
+    NoEcho: true
+Resources:
+  LiveContext:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: LifeLensWanted
+      CodeUri: backend/
+      Handler: live_lambda_handler.handler
+      Runtime: python3.12
+      MemorySize: 512
+      Timeout: 55
+      Environment:
+        Variables:
+          LIFELENS_LIVE_TOKEN: !Ref LiveToken
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action: bedrock:InvokeModel
+              Resource:
+                - arn:aws:bedrock:*::foundation-model/amazon.nova-2-lite-v1:0
+                - !Sub arn:aws:bedrock:*:${AWS::AccountId}:inference-profile/global.amazon.nova-2-lite-v1:0
+      FunctionUrlConfig:
+        AuthType: NONE
+Outputs:
+  LiveUrl:
+    Value: !GetAtt LiveContextUrl.FunctionUrl

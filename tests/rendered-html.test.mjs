@@ -58,3 +58,15 @@ test("keeps model calls behind the server-side minimized-event proxy", async () 
   assert.match(actionRoute, /confirmed/);
   assert.match(layout, /summary_large_image/);
 });
+
+test("live route exposes consent and actual input controls without claiming glasses integration", async () => {
+  const response = await render("/live");
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /LifeLens Live/);
+  assert.match(html, /카메라 시작/);
+  assert.match(html, /클라우드 AI/);
+  assert.match(html, /사진 선택/);
+  assert.match(html, /실제 안경 연결은 아직 지원하지 않아요/);
+  assert.doesNotMatch(html, /LIFELENS_LIVE_TOKEN/);
+});

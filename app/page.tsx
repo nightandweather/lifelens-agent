@@ -304,6 +304,7 @@ export default function Home() {
             commitments, and surroundings—then proposes one useful next step.
           </p>
           <div className="hero-actions">
+            <a className="primary-link" href="/live">아이폰 실시간 체험 <span>↗</span></a>
             <a href="#live" className="primary-link">Run the interactive day <span>↘</span></a>
             <a className="github-link" href="https://github.com/nightandweather/lifelens-agent" target="_blank" rel="noreferrer">View source ↗</a>
           </div>
