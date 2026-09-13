@@ -23,6 +23,14 @@
 
 ---
 
+## Collaborating
+
+Read [AGENTS.md](AGENTS.md) and [CONTRIBUTING.md](CONTRIBUTING.md) before changes.
+Use short-lived task branches and PRs into main; country-specific APIs live in
+shared source/configuration, not permanent country branches. See
+[regional APIs](docs/REGIONAL_APIS.md) and the
+[submission freeze](docs/SUBMISSION_FREEZE.md).
+
 ## Wanted Live development
 
 The new [iPhone live experience](https://lifelens-agent.kanghoun.chatgpt.site/live)
